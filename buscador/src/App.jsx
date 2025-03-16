@@ -1,35 +1,62 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { CiSearch } from "react-icons/ci";
+import './style.css'
+import { useState } from "react";
+import api from './services/api'
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+
+  const [input, setInput] = useState('')
+  const [cep, setCep] = useState({})
+
+  async function handleSearch() {
+
+    // 88032560/json/
+
+    if (input === '') {
+      alert("Erro ao procurar pelo CEP")
+      return;
+    }
+
+    try {
+      const res = await api.get(`${input}/json`)
+      setCep(res.data)
+      setInput("")
+
+    } catch {
+      setInput("")
+    }
+
+  }
 
   return (
+
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <div className="container">
+        <h1 className="title">busacador de CEP</h1>
+        <div className="container-input">
+          <input
+            placeholder="Digite seu CEP"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+          />
+          <button className="button" onClick={handleSearch}>
+            <CiSearch size={25} color="white" />
+          </button>
+        </div>
+
+        {Object.keys(cep).length > 0 && (
+          <main className="main">
+            <h2>CEP: {cep.cep}</h2>
+
+            <span>{cep.logradouro}</span>
+            <span>{cep.complemento}</span>
+            <span>{cep.bairro}</span>
+            <span>{cep.localidade} - {cep.uf} </span>
+
+          </main>
+        )}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
 
-export default App
